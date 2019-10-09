@@ -1,0 +1,56 @@
+---
+title: "HW3"
+output: github_document
+---
+
+#Load Libraries and Set-Up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(dplyr)
+library(viridis)
+```
+
+#Problem 1
+```{r}
+#Load data from p8105 git repository
+
+library(p8105.datasets)
+data("instacart")
+
+##Exploratory analysis to look at generally what products, aisles, and how many of each product are ordered
+instacart_df =
+  select(instacart, product_name, department, add_to_cart_order, reordered) %>%
+  mutate(number_order = add_to_cart_order + reordered) %>%
+  arrange(department) %>%
+  select(-add_to_cart_order, -reordered)
+
+instacart_df
+
+```
+
+#Aisles Questions
+```{r}
+
+aisles_df = 
+  select(instacart, aisle_id, aisle, product_name, add_to_cart_order, reordered) %>%
+  mutate(number_order = add_to_cart_order + reordered)
+#Finding the number of distinct aisles 
+nrow(distinct(aisles_df, aisle_id))
+
+#Finding the aisles where the most items are ordered from
+group_by(aisles_df, aisle) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n))
+  
+```
+There are 134 aisles in the dataset with fresh vegetables, fresh fruits, and packaged vegetables fruits as the aisles with the most items ordered are from.
+
+
+```{r}
+
+```
+
+
+minrank!
