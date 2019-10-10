@@ -5,11 +5,10 @@ output: github_document
 
 #Load Libraries and Set-Up
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-
 library(tidyverse)
 library(dplyr)
 library(viridis)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 #Problem 1
@@ -53,17 +52,84 @@ ordered_items =
   group_by(aisles_df, aisle) %>%
   summarize(n = n()) %>%
   arrange(desc(n)) %>%
-  filter(n > 10000)
+  filter(n > 10000) %>%
+  mutate(number_item = (n)) %>%
+  select(-n)
 
 ordered_items
 
 ```
 ## Ggplot of aisles with more than 10,000 items
 ```{r}
-ggplot(ordered_items, aes(x = n, y = aisle, color = aisle)) +
+ggplot(ordered_items, aes(x = number_item, y = aisle, color = aisle)) +
          geom_point()
+```
+
+## Table of top three items in Baking Ingredients, Dog Food Care, and Packaged Vegetables Fruits
+```{r}
+top_baking_ing = 
+  filter(instacart, aisle == "baking ingredients") %>%
+    pivot_wider(
+      names_from = "aisle",
+      values_from = "product_name"
+    ) %>%
+  mutate(number_ordered = add_to_cart_order + reordered) %>%
+  arrange(desc(number_ordered)) %>%
+  head(3)
+  
+top_baking_ing
+
+top_dog_food = 
+  filter(instacart, aisle == "dog food care") %>%
+    pivot_wider(
+      names_from = "aisle",
+      values_from = "product_name"
+    ) %>%
+  mutate(number_ordered = add_to_cart_order + reordered) %>%
+  arrange(desc(number_ordered)) %>%
+  head(3)
+
+top_dog_food
+
+top_packaged = 
+  filter(instacart, aisle == "packaged vegetables fruits") %>%
+    pivot_wider(
+      names_from = "aisle",
+      values_from = "product_name"
+    ) %>%
+  mutate(number_ordered = add_to_cart_order + reordered) %>%
+  arrange(desc(number_ordered)) %>%
+  head(3)
+  
+top_packaged
+
+top_three = 
+  bind_rows(top_baking_ing, top_dog_food, top_packaged) %>%
+  janitor::clean_names() %>%
+  select(-everything(), number_ordered, baking_ingredients, dog_food_care, packaged_vegetables_fruits) %>%
+  arrange(desc(number_ordered))
+
+top_three
+```
+
+## Mean hour of the day Pink Lady Apples and Coffee Ice Cream
+```{r}
+mean_hour = 
+  select(instacart, product_id, product_name, order_hour_of_day, order_dow) %>%
+  filter(product_name == "Pink Lady Apples" | product_name == "Coffee Ice Cream") %>%
+  group_by(product_id) %>%
+  mutate(mean_hour = mean(order_hour_of_day)) %>%
+  select(-order_hour_of_day) %>%
+  arrange(order_dow) %>%
+  distinct() %>%
+  knitr::kable()
+
+mean_hour
+
 ```
 
 minrank!
 
 35 different days on the plots, but you cna plot other trends as well (35 diferent lines)
+
+convert minutes to hour, divide minute variable by 60 
