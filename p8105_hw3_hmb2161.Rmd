@@ -30,7 +30,7 @@ instacart_df
 
 ```
 
-#Aisles Questions
+##Aisles Questions
 ```{r}
 
 aisles_df = 
@@ -45,12 +45,25 @@ group_by(aisles_df, aisle) %>%
   arrange(desc(n))
   
 ```
-There are 134 aisles in the dataset with fresh vegetables, fresh fruits, and packaged vegetables fruits as the aisles with the most items ordered are from.
+There are 134 aisles in the dataset with fresh vegetables, fresh fruits, and packaged vegetables fruits aisles containing the most items ordered.
 
-
+##Number of items ordered in each aisle 
 ```{r}
+ordered_items = 
+  group_by(aisles_df, aisle) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n)) %>%
+  filter(n > 10000)
+
+ordered_items
 
 ```
-
+## Ggplot of aisles with more than 10,000 items
+```{r}
+ggplot(ordered_items, aes(x = n, y = aisle, color = aisle)) +
+         geom_point()
+```
 
 minrank!
+
+35 different days on the plots, but you cna plot other trends as well (35 diferent lines)
