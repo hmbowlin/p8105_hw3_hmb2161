@@ -118,14 +118,57 @@ mean_hour =
   select(instacart, product_id, product_name, order_hour_of_day, order_dow) %>%
   filter(product_name == "Pink Lady Apples" | product_name == "Coffee Ice Cream") %>%
   group_by(product_id) %>%
+  mutate(week_day = recode(order_dow, 
+       "0" = "Sunday",
+       "1" = "Monday",
+       "2" = "Tuesday",
+       "3" = "Wednesday",
+       "4" = "Thursday",
+       "5" = "Friday",
+       "6" = "Saturday")) %>%
+  group_by(product_id, week_day) %>%
   mutate(mean_hour = mean(order_hour_of_day)) %>%
-  select(-order_hour_of_day) %>%
-  arrange(order_dow) %>%
+  select(-order_hour_of_day) %>% 
+  arrange(week_day) %>%
   distinct() %>%
   knitr::kable()
 
 mean_hour
 
+```
+
+
+#Problem 2
+
+## Cleaning BRFSS data
+```{r}
+library(p8105.datasets)
+data("BRFSS")
+
+brfss_data = 
+  select(brfss_smart2010, everything()) %>%
+  janitor::clean_names() %>%
+  filter(topic == "Overall Health" | 
+           response == "Excellent" | 
+           response == "Very good" | 
+           response == "Good" |
+           response == "Fair" |
+           response == "Poor") %>%
+  arrange(response == "Excellent", response == "Very good", response == "Good", response == "Fair", response == "Poor")
+
+brfss_data
+  
+```
+
+## 2002 and 2010 states with 7 or more locations
+```{r}
+year_data = 
+  group_by(brfss_data, year) %>%
+  filter(year == 2002) %>%
+  group_by(locationabbr) %>%
+  count(locationdesc)
+
+year_data
 ```
 
 minrank!
