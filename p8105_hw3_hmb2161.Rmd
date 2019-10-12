@@ -201,7 +201,7 @@ excellent_response
 ```{r}
 ggplot(excellent_response, aes(x = year, y = data_location)) + 
   geom_line(aes(group = locationabbr, color = locationabbr)) + 
-  viridis::scale_color_viridis(
+  scale_color_viridis(
     name = "locationabbr",
     discrete = TRUE
   ) 
@@ -227,13 +227,41 @@ ny_state
 ```{r}
 ggplot(ny_state, aes(x = response, y = data_location)) +
   geom_line(aes(group = locationdesc, color = locationdesc)) + 
-  viridis::scale_color_viridis(
+  scale_color_viridis(
     name = "locationdesc",
     discrete = TRUE
   ) +
   facet_grid(~year)
   
 ```
+
+
+#Problem 3
+```{r}
+accel_data = 
+  read_csv(file = "/Users/hannahbowlin/Documents/Biostats Sem 1/Data Science 1/Data Science/Data Science 1 part a/Visualization and EDA/p8105_hw3_hmb2161/accel_data.csv") %>%
+  janitor::clean_names() %>%
+  pivot_longer(activity_1:activity_1440,
+    names_to = "minute",
+    values_to = "activity_amount"
+  ) %>%
+  group_by(day) 
+
+accel_data
+```
+* In this new dataset there are 5 columns instead of over a 1400. There are now `r nrow(pull(accel_data))` rows and `r ncol(pull(accel_data))` columns. The variables are week, day_id, day, minute of the day, and amount of activity in that minute. 
+
+NEED TO ADD WEEK DAY AND WEEKEND VARIABLES
+
+##Total activity per day
+```{r}
+accel_data %>%
+  group_by(week) %>%
+  mutate(mean_activity = mean(activity_amount)) %>%
+  group_by(day_id)
+  
+```
+
 
 minrank!
 
