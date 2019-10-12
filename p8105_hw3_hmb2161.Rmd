@@ -126,9 +126,9 @@ mean_hour =
        "4" = "Thursday",
        "5" = "Friday",
        "6" = "Saturday")) %>%
-  group_by(product_id, week_day) %>%
+  group_by(product_name, week_day) %>%
   mutate(mean_hour = mean(order_hour_of_day)) %>%
-  select(-order_hour_of_day) %>% 
+  select(-order_hour_of_day, -order_dow, -product_id) %>% 
   arrange(week_day) %>%
   distinct() %>%
   knitr::kable()
@@ -160,15 +160,43 @@ brfss_data
   
 ```
 
-## 2002 and 2010 states with 7 or more locations
+## 2002:states with 7 or more locations
 ```{r}
-year_data = 
+first_year_data = 
   group_by(brfss_data, year) %>%
   filter(year == 2002) %>%
   group_by(locationabbr) %>%
-  count(locationdesc)
+  count(locationabbr) %>%
+  filter(n > 7) 
 
-year_data
+first_year_data
+```
+## 2010: states with 7 or more locations
+```{r}
+second_year_data = 
+  group_by(brfss_data, year) %>%
+  filter(year == 2010) %>%
+  group_by(locationabbr) %>%
+  count(locationabbr) %>%
+  filter(n > 7)
+
+second_year_data
+```
+
+##Excellent responses across statements 
+```{r}
+excellent_response = 
+  select(brfss_data, response, year, locationabbr, data_value) %>%
+  filter(response == "Excellent") %>%
+  group_by(locationabbr) %>%
+  mutate(data_location = mean(data_value))
+
+excellent_response
+```
+
+## Spaghetti plot of above dataset
+```{r}
+
 ```
 
 minrank!
