@@ -188,14 +188,38 @@ second_year_data
 excellent_response = 
   select(brfss_data, response, year, locationabbr, data_value) %>%
   filter(response == "Excellent") %>%
+  group_by(locationabbr, year) %>%
+  mutate(data_location = mean(data_value)) %>%
+  select(-data_value) %>%
   group_by(locationabbr) %>%
-  mutate(data_location = mean(data_value))
+  distinct()
 
 excellent_response
 ```
 
 ## Spaghetti plot of above dataset
 ```{r}
+ggplot(excellent_response, aes(x = year, y = data_location)) + 
+  geom_line(aes(group = locationabbr, color = locationabbr)) + 
+  viridis::scale_color_viridis(
+    name = "locationabbr",
+    discrete = TRUE
+  ) 
+``` 
+
+##Two panel plot showing the states in 2006 and 2010
+```{r}
+ny_state = 
+  select(brfss_data, response, year, locationabbr, data_value) %>%
+  filter(locationabbr == "NY") %>%
+  group_by(locationabbr, response, year) %>%
+  mutate(data_location = mean(data_value)) %>%
+  select(-data_value) %>%
+  group_by(locationabbr) %>%
+  filter(xor(year == "2006", year == "2010")) %>%
+  distinct()
+
+ny_state
 
 ```
 
