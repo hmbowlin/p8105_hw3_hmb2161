@@ -210,9 +210,9 @@ ggplot(excellent_response, aes(x = year, y = data_location)) +
 ##Two panel plot showing the states in 2006 and 2010
 ```{r}
 ny_state = 
-  select(brfss_data, response, year, locationabbr, data_value) %>%
+  select(brfss_data, response, year, locationabbr, locationdesc, data_value) %>%
   filter(locationabbr == "NY") %>%
-  group_by(locationabbr, response, year) %>%
+  group_by(locationdesc, response, year) %>%
   mutate(data_location = mean(data_value)) %>%
   select(-data_value) %>%
   group_by(locationabbr) %>%
@@ -221,6 +221,18 @@ ny_state =
 
 ny_state
 
+```
+
+## Plot of NY in 2006 and 2010
+```{r}
+ggplot(ny_state, aes(x = response, y = data_location)) +
+  geom_line(aes(group = locationdesc, color = locationdesc)) + 
+  viridis::scale_color_viridis(
+    name = "locationdesc",
+    discrete = TRUE
+  ) +
+  facet_grid(~year)
+  
 ```
 
 minrank!
