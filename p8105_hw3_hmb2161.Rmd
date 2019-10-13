@@ -225,8 +225,8 @@ ny_state
 
 ## Plot of NY in 2006 and 2010
 ```{r}
-ggplot(ny_state, aes(x = response, y = data_location)) +
-  geom_line(aes(group = locationdesc, color = locationdesc)) + 
+ggplot(ny_state, aes(x = response, y = data_location, fill = locationdesc)) +
+  geom_col() + 
   scale_color_viridis(
     name = "locationdesc",
     discrete = TRUE
@@ -245,23 +245,33 @@ accel_data =
     names_to = "minute",
     values_to = "activity_amount"
   ) %>%
-  group_by(day) 
+  group_by(day) %>%
+  mutate(type = if_else(day == c("Sat", "Sun"), "weekend", "weekday"))
 
 accel_data
 ```
 * In this new dataset there are 5 columns instead of over a 1400. There are now `r nrow(pull(accel_data))` rows and `r ncol(pull(accel_data))` columns. The variables are week, day_id, day, minute of the day, and amount of activity in that minute. 
 
-NEED TO ADD WEEK DAY AND WEEKEND VARIABLES
-
 ##Total activity per day
 ```{r}
 accel_data %>%
-  group_by(week) %>%
+  group_by(week, day) %>%
   mutate(mean_activity = mean(activity_amount)) %>%
-  group_by(day_id)
+  select(-minute, -activity_amount) %>%
+  group_by(day) %>%
+  distinct() %>%
+  pivot_wider(
+    names_from = "day",
+    values_from = "mean_activity"
+  ) %>%
+  knitr::kable()
   
 ```
 
+
+```{r}
+
+```
 
 minrank!
 
