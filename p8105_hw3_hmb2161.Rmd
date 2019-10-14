@@ -319,7 +319,8 @@ accel_day_data =
   mutate(mean_activity = mean(activity_amount)) %>%
   group_by(day) %>%
   mutate(type = as.factor(type)) %>%
-  arrange(day) %>%
+  select(-activity_amount, -minute) %>%
+  arrange(week, day) %>%
   distinct()
 
 accel_day_data
@@ -329,7 +330,7 @@ accel_day_data
 
 ```{r, fig.width= 5}
 #Created a ggplot for accel day data where x is the minute and y is the activity throughout the day. Each line represents a day of the week and reflects how activity changes in one day. The colors represent the day of the week so you see the change over time for each day in different weeks.
-ggplot(accel_day_data, aes(x = minute, y = activity_amount, color = day, group = day_id)) +
+ggplot(accel_data, aes(x = minute, y = activity_amount, color = day, group = day_id)) +
   geom_line() +
   labs(
     title = "Activity Over Time per Day of the Week",
