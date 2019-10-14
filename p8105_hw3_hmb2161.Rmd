@@ -31,23 +31,29 @@ instacart_df
 
 ##Aisles Questions
 ```{r}
-
+#Create a variable that shows the aisles only (smaller dataset)
 aisles_df = 
-  select(instacart, aisle_id, aisle, product_name, add_to_cart_order, reordered) %>%
-  mutate(number_order = add_to_cart_order + reordered)
+  select(instacart, aisle_id, aisle, product_name, add_to_cart_order, reordered)
+
 #Finding the number of distinct aisles 
 nrow(distinct(aisles_df, aisle_id))
 
-#Finding the aisles where the most items are ordered from
-group_by(aisles_df, aisle) %>%
+#Finding the aisles where the most items are ordered from by grouping them and summarizing number of observations within the aisles column and arranging them in descending order
+number_item_df = 
+  group_by(aisles_df, aisle) %>%
   summarize(n = n()) %>%
-  arrange(desc(n))
+  arrange(desc(n)) %>%
+  mutate(number_item = (n)) %>%
+  select(-n)
+
+number_item_df
   
 ```
-There are 134 aisles in the dataset with fresh vegetables, fresh fruits, and packaged vegetables fruits aisles containing the most items ordered.
+There are 134 aisles in the dataset with fresh vegetables, fresh fruits, and packaged vegetables fruits aisles containing the most items ordered. The average number of items ordered across all of the aisles is `r mean(pull(number_item_df, number_item))`. The median number of items ordered across all of the aisles is `r median(pull(number_item_df, number_item))`.
 
 ##Number of items ordered in each aisle 
 ```{r}
+#Grouped by aisle and summarized by number of observations and then filtered by n > 10000 and renamed the column
 ordered_items = 
   group_by(aisles_df, aisle) %>%
   summarize(n = n()) %>%
@@ -59,33 +65,38 @@ ordered_items =
 ordered_items
 
 ```
+
 ## Ggplot of aisles with more than 10,000 items
 ```{r}
+#Created a ggplot of the items that were ordered more than 10,000 timesm the products are in alphabetical order
 ggplot(ordered_items, aes(x = number_item, y = aisle, color = aisle)) +
          geom_point()
 ```
 
 ## Table of top three items in Baking Ingredients, Dog Food Care, and Packaged Vegetables Fruits
 ```{r}
+#Filtering the instacart data by baking ingredients, dog food care, and packaged vegetables fruits and pivoting each of them wider, finding the number of times they were ordered, arranging them in descending order, and seeing the top three observations
 top_baking_ing = 
-  filter(instacart, aisle == "baking ingredients") %>%
-    pivot_wider(
-      names_from = "aisle",
-      values_from = "product_name"
-    ) %>%
-  mutate(number_ordered = add_to_cart_order + reordered) %>%
+  filter(instacart, 
+         aisle == "baking ingredients") %>%
+  pivot_wider(
+         names_from = "aisle",
+         values_from = "product_name") %>%
+  mutate(number_ordered = 
+         add_to_cart_order + reordered) %>%
   arrange(desc(number_ordered)) %>%
   head(3)
   
 top_baking_ing
 
 top_dog_food = 
-  filter(instacart, aisle == "dog food care") %>%
-    pivot_wider(
-      names_from = "aisle",
-      values_from = "product_name"
-    ) %>%
-  mutate(number_ordered = add_to_cart_order + reordered) %>%
+  filter(instacart, 
+         aisle == "dog food care") %>%
+  pivot_wider(
+         names_from = "aisle",
+         values_from = "product_name") %>%
+  mutate(number_ordered = 
+        add_to_cart_order + reordered) %>%
   arrange(desc(number_ordered)) %>%
   head(3)
 
@@ -102,6 +113,10 @@ top_packaged =
   head(3)
   
 top_packaged
+```
+##Binding the three datasets
+```{r}
+#Now that I have each of the top three items from the three aisles, I bind the rows together and arrange them in descending order of ordered number
 
 top_three = 
   bind_rows(top_baking_ing, top_dog_food, top_packaged) %>%
@@ -111,9 +126,11 @@ top_three =
 
 top_three
 ```
+The top three items in the baking ingredients aisle are all-purpose flour, no calorie sweetner packets, and light brown sugar. In dog food care it's sausage cuts real beef treats, dentastix small/ medium dog care & treats, and proactive health minichunks adult dog food. In packaged vegetables fruits it's fresh european style baby spinach, organic baby bella mushrooms, and seedless red grapes.
 
 ## Mean hour of the day Pink Lady Apples and Coffee Ice Cream
 ```{r}
+## To find the mean hour of the day that pink lady apples and coffee ice cream were ordered I created a new dataframe and filtered by the product name, grouped by product id, recoded week day to be the day of the week, grouped again by product name and week day, mutated to get the mean order hour of teh day, and arranged by day of the week. I used distinct to get only one value for each day of the week.
 mean_hour = 
   select(instacart, product_id, product_name, order_hour_of_day, order_dow) %>%
   filter(product_name == "Pink Lady Apples" | product_name == "Coffee Ice Cream") %>%
@@ -145,6 +162,7 @@ mean_hour
 library(p8105.datasets)
 data("BRFSS")
 
+#I downloaded the BRFSS data set, cleaned the names, filtered for the responses I wanted, and arranged the responses from poor to excellent
 brfss_data = 
   select(brfss_smart2010, everything()) %>%
   janitor::clean_names() %>%
@@ -159,9 +177,11 @@ brfss_data =
 brfss_data
   
 ```
+* BRFSS data shows the health status of different locations across states in the US. The responses are recorded as excellent, very good, good, fair, or poor. There are `r nrow(pull(brfss_data))` rows in this dataset. The median response value for the dataset is `r median(pull(brfss_data, data_value))`. 
 
 ## 2002:states with 7 or more locations
 ```{r}
+## 
 first_year_data = 
   group_by(brfss_data, year) %>%
   filter(year == 2002) %>%
@@ -201,6 +221,11 @@ excellent_response
 ```{r}
 ggplot(excellent_response, aes(x = year, y = data_location)) + 
   geom_line(aes(group = locationabbr, color = locationabbr)) + 
+  labs(
+    title = "Average Response Over Time in All States",
+    x = "Year",
+    y = "Average Response Value"
+  ) +
   scale_color_viridis(
     name = "locationabbr",
     discrete = TRUE
@@ -227,6 +252,11 @@ ny_state
 ```{r}
 ggplot(ny_state, aes(x = response, y = data_location, fill = locationdesc)) +
   geom_col() + 
+  labs(
+    title = "Response by Location in NY State",
+    x = "Response",
+    y = "Average Data Value"
+  ) + 
   scale_color_viridis(
     name = "locationdesc",
     discrete = TRUE
@@ -246,7 +276,8 @@ accel_data =
     values_to = "activity_amount"
   ) %>%
   group_by(day) %>%
-  mutate(type = if_else(day == c("Sat", "Sun"), "weekend", "weekday"))
+  mutate(type = if_else(day == c("Sat", "Sun"), "weekend", "weekday")) %>%
+  mutate(minute = str_replace(minute, "activity_", " "))
 
 accel_data
 ```
@@ -254,27 +285,28 @@ accel_data
 
 ##Total activity per day
 ```{r}
-accel_data %>%
-  group_by(week, day) %>%
+## I grouped by week and day and then mutated activity amount to be the mean of each day within each week. I then divided mean activity by 60 to give the mean activity in hours. I deselected columns that don't matter and arranged by day of teh week. 
+accel_day_data =
+  group_by(accel_data, week, day) %>%
   mutate(mean_activity = mean(activity_amount)) %>%
-  select(-minute, -activity_amount) %>%
+  select(-minute, -activity_amount, -type) %>%
   group_by(day) %>%
-  distinct() %>%
-  pivot_wider(
-    names_from = "day",
-    values_from = "mean_activity"
-  ) %>%
-  knitr::kable()
+  arrange(day) %>%
+  distinct()
+
+accel_day_data
   
 ```
-
+## The trends apparent in the above table are that week 4 seems to have less activity than other weeks. The first week has a lot of activity compared to other weeks. Tuesday's activity is generally less than other days and Wednesday's is more than other days. Tuesday and Wednesday are fairly consistent across weeks in their activity levels. 
 
 ```{r}
-
+ggplot(accel_day_data, aes(x = week, y = mean_activity)) +
+  geom_line(aes(group = day, color = day)) +
+  labs(
+    title = "Average Activity Over Time per Day of the Week",
+        x = "Week Number",
+        y = "Average Activity Throughout the Day (Minutes)"
+  )
 ```
 
-minrank!
 
-35 different days on the plots, but you cna plot other trends as well (35 diferent lines)
-
-convert minutes to hour, divide minute variable by 60 
