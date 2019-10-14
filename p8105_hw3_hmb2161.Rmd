@@ -67,7 +67,7 @@ ordered_items
 ```
 
 ## Ggplot of aisles with more than 10,000 items
-```{r, fig.width=5}
+```{r, fig.width=6}
 #Created a ggplot of the items that were ordered more than 10,000 timesm the products are in alphabetical order
 ggplot(ordered_items, aes(x = number_item, y = aisle, color = aisle)) +
          geom_point() +
