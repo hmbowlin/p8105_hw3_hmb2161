@@ -263,6 +263,9 @@ ny_state =
   group_by(locationabbr) %>%
   filter(xor(year == "2006", 
              year == "2010")) %>%
+  mutate(location_state = str_replace(locationdesc, "NY - ", " ")) %>%
+  mutate(location_state = str_replace(location_state, "County", " ")) %>%
+  select(-locationdesc) %>%
   distinct()
 
 ny_state
@@ -270,9 +273,9 @@ ny_state
 ```
 
 ## Plot of NY in 2006 and 2010
-```{r, fig.width = 5}
+```{r, fig.width = 7}
 #Created a ggplot of NY responses by location between 2006 and 2010. The colors in the bars represent the different locations and the bars themselves are the responses.
-ggplot(ny_state, aes(x = locationdesc, y = data_location, fill = response)) +
+ggplot(ny_state, aes(x = location_state, y = data_location, fill = response)) +
   geom_col() + 
   labs(
     title = "Response by Location in NY State",
@@ -280,7 +283,7 @@ ggplot(ny_state, aes(x = locationdesc, y = data_location, fill = response)) +
     y = "Average Data Value"
   ) + 
   scale_color_viridis(
-    name = "locationdesc",
+    name = "response",
     discrete = TRUE
   ) +
   facet_grid(~year)
