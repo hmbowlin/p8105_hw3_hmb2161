@@ -153,7 +153,7 @@ mean_hour =
   select(-order_hour_of_day, -order_dow, -product_id) %>% 
   arrange(week_day) %>%
   distinct() %>%
-  knitr::kable(caption = 'Mean Hour of Day per Day', booktabs = TRUE)
+  knitr::kable()
 
 mean_hour
 
@@ -273,7 +273,7 @@ ny_state
 ```
 
 ## Plot of NY in 2006 and 2010
-```{r, fig.width = 7}
+```{r, fig.width = 8}
 #Created a ggplot of NY responses by location between 2006 and 2010. The colors in the bars represent the different locations and the bars themselves are the responses.
 ggplot(ny_state, aes(x = location_state, y = data_location, fill = response)) +
   geom_col() + 
