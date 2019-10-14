@@ -211,12 +211,12 @@ second_year_data =
   group_by(locationabbr) %>%
   count(locationabbr) %>%
   filter(n > 7) %>%
-  mutate(number_locations = n) %>%
+  mutate(number_location = n) %>%
   select(-n)
 
 second_year_data
 ```
-* The average number of locations a state had in 2010 was `r mean(pull(second_year_data, number_locations))`.
+* The average number of locations a state had in 2010 was `r mean(pull(second_year_data, number_location))`.
 
 ##Excellent responses across statements 
 ```{r}
@@ -238,17 +238,16 @@ excellent_response
 # Created a ggplot of the excellent responses across the years by state abbreviations
 ggplot(excellent_response, aes(x = year, y = data_location)) + 
   geom_line(aes(
-    group = locationabbr, 
+    group = locationabbr,
     color = locationabbr)) + 
-  labs(
-    title = 
-        "Average Response Between 2002 and 2010 in All States",
+  labs(title = "Average Response Between 2002 and 2010 in All States",
     x = "Year",
     y = "Average Response Value") +
   scale_color_viridis(
     name = "locationabbr",
     discrete = TRUE
   ) 
+
 ``` 
 
 ##Two panel plot showing the states in 2006 and 2010
@@ -326,16 +325,16 @@ accel_day_data =
 accel_day_data
   
 ```
-## The trends apparent in the above table are that week 4 seems to have less activity than other weeks. The first week has a lot of activity compared to other weeks. Tuesday's activity is generally less than other days and Wednesday's is more than other days. Tuesday and Wednesday are fairly consistent across weeks in their activity levels. 
+* The trends apparent in the above table are that week 4 seems to have less activity than other weeks. The first week has a lot of activity compared to other weeks. Tuesday's activity is generally less than other days and Wednesday's is more than other days. Tuesday and Wednesday are fairly consistent across weeks in their activity levels. 
 
-```{r, fig.width= 5}
+```{r, fig.width= 8}
 #Created a ggplot for accel day data where x is the minute and y is the activity throughout the day. Each line represents a day of the week and reflects how activity changes in one day. The colors represent the day of the week so you see the change over time for each day in different weeks.
 ggplot(accel_data, aes(x = minute, y = activity_amount, color = day, group = day_id)) +
   geom_line() +
   labs(
     title = "Activity Over Time per Day of the Week",
         x = "Minutes",
-        y = "Activity Throughout the Day (Minutes)"
+        y = "Activity Level Throughout the Day"
   ) +
   scale_color_viridis(
     name = "day",
