@@ -165,7 +165,7 @@ mean_hour
 ## Cleaning BRFSS data
 ```{r}
 library(p8105.datasets)
-data("BRFSS")
+data("brfss_smart2010")
 
 #I downloaded the BRFSS data set, cleaned the names, filtered for the responses I wanted, and arranged the responses from poor to excellent
 brfss_data = 
@@ -180,9 +180,12 @@ brfss_data =
   arrange(response == "Excellent", response == "Very good", response == "Good", response == "Fair", response == "Poor")
 
 brfss_data
+
+#How many rows are in the dataset
+nrow(brfss_data)
   
 ```
-* BRFSS data shows the health status of different locations across states in the US. The responses are recorded as excellent, very good, good, fair, or poor. There are `r nrow(pull(brfss_data))` rows in this dataset. The median response value for the dataset is `r median(pull(brfss_data, data_value))`. 
+* BRFSS data shows the health status of different locations across states in the US. The responses are recorded as excellent, very good, good, fair, or poor. There are 10,625 rows in this dataset. 
 
 ## 2002:states with 7 or more locations
 ```{r}
@@ -309,7 +312,7 @@ accel_data
 accel_day_data =
   group_by(accel_data, week, day) %>%
   mutate(mean_activity = mean(activity_amount)) %>%
-  select(-minute, -activity_amount, -type) %>%
+  select(-type) %>%
   group_by(day) %>%
   arrange(day) %>%
   distinct()
@@ -320,14 +323,15 @@ accel_day_data
 ## The trends apparent in the above table are that week 4 seems to have less activity than other weeks. The first week has a lot of activity compared to other weeks. Tuesday's activity is generally less than other days and Wednesday's is more than other days. Tuesday and Wednesday are fairly consistent across weeks in their activity levels. 
 
 ```{r}
-#Created a ggplot for accel day data where x is the week and y is the mean activity through the weeks. Each line represents a day of the week and reflects how activity changes in one day of the week over the 5 weeks.
-ggplot(accel_day_data, aes(x = week, y = mean_activity)) +
-  geom_line(aes(group = day, color = day)) +
+#Created a ggplot for accel day data where x is the minute and y is the activity throughout the day. Each line represents a day of the week and reflects how activity changes in one day. The colors represent the day of the week so you see the change over time for each day in different weeks.
+ggplot(accel_day_data, aes(x = minute, y = activity_amount, color = day, group = day_id)) +
+  geom_line(aes(color = day, group = day_id)) +
   labs(
-    title = "Average Activity Over Time per Day of the Week",
-        x = "Week Number",
-        y = "Average Activity Throughout the Day (Minutes)"
+    title = "Activity Over Time per Day of the Week",
+        x = "Minutes",
+        y = "Activity Throughout the Day (Minutes)"
   )
 ```
+
 
 
