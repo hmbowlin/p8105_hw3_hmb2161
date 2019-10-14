@@ -301,6 +301,8 @@ accel_data =
     names_to = "minute",
     values_to = "activity_amount"
   ) %>%
+  mutate(day = as.factor(day)) %>%
+  mutate(day_id = as.factor(day_id)) %>%
   group_by(day) %>%
   mutate(type = if_else(day == c("Sat", "Sun"), "weekend", "weekday")) %>%
   mutate(minute = str_replace(minute, "activity_", " ")) 
@@ -315,8 +317,8 @@ accel_data
 accel_day_data =
   group_by(accel_data, week, day) %>%
   mutate(mean_activity = mean(activity_amount)) %>%
-  select(-type) %>%
   group_by(day) %>%
+  mutate(type = as.factor(type)) %>%
   arrange(day) %>%
   distinct()
 
@@ -325,14 +327,18 @@ accel_day_data
 ```
 ## The trends apparent in the above table are that week 4 seems to have less activity than other weeks. The first week has a lot of activity compared to other weeks. Tuesday's activity is generally less than other days and Wednesday's is more than other days. Tuesday and Wednesday are fairly consistent across weeks in their activity levels. 
 
-```{r}
+```{r, fig.width= 5}
 #Created a ggplot for accel day data where x is the minute and y is the activity throughout the day. Each line represents a day of the week and reflects how activity changes in one day. The colors represent the day of the week so you see the change over time for each day in different weeks.
 ggplot(accel_day_data, aes(x = minute, y = activity_amount, color = day, group = day_id)) +
-  geom_line(aes(color = day, group = day_id)) +
+  geom_line() +
   labs(
     title = "Activity Over Time per Day of the Week",
         x = "Minutes",
         y = "Activity Throughout the Day (Minutes)"
+  ) +
+  scale_color_viridis(
+    name = "day",
+    discrete = TRUE
   )
 ```
 
